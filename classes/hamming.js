@@ -1,6 +1,6 @@
-//Hamming 4->7
+// Hamming 4->7
 class HammingCode {
-  //dataToEncode [i1, i2, i3, i4]
+  // dataToEncode [i1, i2, i3, i4]
   static encode(dataToEncode) {
     if(dataToEncode.length != 4) {
       throw Error("HammingCode: encode input must have exactly 4 bits");
@@ -12,16 +12,8 @@ class HammingCode {
       }
     }
 
-    let hammingEncoded = [1,1,1,1,1,1,1]; //p1 p2 i1 p3 i2 i3 i4
-    /*
-    1 = 001
-    2 = 010
-    3 = 011
-    4 = 100
-    5 = 101
-    6 = 110
-    7 = 111
-    */
+    let hammingEncoded = [1,1,1,1,1,1,1]; // p1 p2 i1 p3 i2 i3 i4
+
     hammingEncoded[2] = dataToEncode[0];
     hammingEncoded[4] = dataToEncode[1];
     hammingEncoded[5] = dataToEncode[2];
@@ -34,7 +26,7 @@ class HammingCode {
     return hammingEncoded;
   }
 
-  //dataToDecode [i1, i2, i3, i4, i5, i6, i7]
+  // dataToDecode [p1, p2, i1, p3, i2, i3, i4]
   static decode(dataToDecode) {
     if (dataToDecode.length !== 7) {
       throw Error("HammingCode: decode input must have exactly 7 bits");
@@ -64,7 +56,8 @@ class HammingCode {
 
     return [dataToDecode[2], dataToDecode[4], dataToDecode[5], dataToDecode[6]];
   }
-  // NEW: Вводить одиничну помилку в код
+
+  // Вводить одиничну помилку в код (інвертує вказаний біт)
   static injectError(data, position) {
     if (!Array.isArray(data) || data.length !== 7) {
       throw Error("injectError: input must be 7-bit array");
@@ -78,7 +71,7 @@ class HammingCode {
     return corrupted;
   }
 
-  // NEW: Перевіряє правильність коду (чи є помилка)
+  // Перевіряє правильність коду (чи немає помилок у 7-бітному масиві)
   static isValid(data) {
     if (!Array.isArray(data) || data.length !== 7) {
       throw Error("isValid: input must be 7-bit array");
@@ -94,6 +87,30 @@ class HammingCode {
     if (p3 !== data[3]) errorPosition += 4;
 
     return errorPosition === 0;
+  }
+
+  /**
+   * NEW: Повертає лише інформаційні біти з 7-бітного Hamming-коду.
+   * @param {Array} data - 7-бітний масив
+   * @returns {Array} масив із 4 інформаційних бітів [i1, i2, i3, i4]
+   */
+  static getDataBits(data) {
+    if (!Array.isArray(data) || data.length !== 7) {
+      throw Error("getDataBits: input must be 7-bit array");
+    }
+    return [data[2], data[4], data[5], data[6]];
+  }
+
+  /**
+   * NEW: Інвертує всі біти у 7-бітному масиві (0 → 1, 1 → 0).
+   * @param {Array} data - 7-бітний масив
+   * @returns {Array} новий масив з інверсією бітів
+   */
+  static flipAllBits(data) {
+    if (!Array.isArray(data) || data.length !== 7) {
+      throw Error("flipAllBits: input must be 7-bit array");
+    }
+    return data.map(bit => bit === 0 ? 1 : 0);
   }
 }
 

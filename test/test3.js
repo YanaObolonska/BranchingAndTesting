@@ -1,26 +1,31 @@
-const Hamming = require('../classes/hamming');
-const expect = require('chai').expect;
+const { expect } = require('chai');
+const HammingCode = require('../classes/hamming');
 
-describe('getDataBits', () => {
-  it('повертає правильні інформаційні біти з 7-бітного масиву', () => {
-    const input = [0, 1, 1, 0, 0, 1, 1];
-    const result = Hamming.getDataBits(input);
-    expect(result).to.eql([1, 0, 1, 1]);
+describe('HammingCode.getErrorPosition', () => {
+  it('повертає 0, якщо помилки немає', () => {
+    const data = HammingCode.encode([1, 0, 1, 1]);
+    expect(HammingCode.getErrorPosition(data)).to.equal(0);
   });
 
-  it('викидає помилку при некоректному вхідному масиві', () => {
-    expect(() => Hamming.getDataBits([1, 0, 1])).to.throw();
+  it('повертає правильну позицію при помилці у 3-му біті', () => {
+    const encoded = HammingCode.encode([1, 0, 1, 1]);
+    const withError = HammingCode.injectError(encoded, 3);
+    expect(HammingCode.getErrorPosition(withError)).to.equal(3);
   });
 });
 
-describe('flipAllBits', () => {
-  it('інвертує всі біти у 7-бітному масиві', () => {
-    const input = [1, 0, 1, 1, 0, 0, 1];
-    const result = Hamming.flipAllBits(input);
-    expect(result).to.eql([0, 1, 0, 0, 1, 1, 0]);
+describe('HammingCode.getDataBits', () => {
+  it('повертає початкові дані без паритетів', () => {
+    const original = [1, 0, 1, 0];
+    const encoded = HammingCode.encode(original);
+    expect(HammingCode.getDataBits(encoded)).to.deep.equal(original);
   });
 
-  it('викидає помилку при неправильній довжині масиву', () => {
-    expect(() => Hamming.flipAllBits([1, 0])).to.throw();
+  it('повертає правильні дані після виправлення помилки', () => {
+    const original = [0, 1, 1, 1];
+    const encoded = HammingCode.encode(original);
+    const corrupted = HammingCode.injectError(encoded, 5);
+    const corrected = HammingCode.decode(corrupted);
+    expect(corrected).to.deep.equal(original);
   });
 });
